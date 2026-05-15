@@ -132,7 +132,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
 
     if (error) {
       console.error("getDashboardData error:", error);
-      return { spins: [], byShop: [], total: 0, wins: 0 };
+      throw error;
     }
 
     const spins = data ?? [];
@@ -144,7 +144,9 @@ export const getDashboardData = createServerFn({ method: "GET" })
     }
 
     for (const s of spins) {
-      const cur = shopMap.get(s.boutique) ?? { boutique: s.boutique, total: 0, wins: 0, remaining: 0 };
+      const cur = shopMap.get(s.boutique);
+      if (!cur) continue; // Skip non-partners (losers / Majestic Cinema)
+      
       cur.total += 1;
       if (s.win) {
         cur.wins += 1;

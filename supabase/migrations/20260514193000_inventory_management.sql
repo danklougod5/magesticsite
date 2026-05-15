@@ -108,7 +108,7 @@ BEGIN
   IF v_is_winner THEN
     v_prize := 'Bon d''achat + 2 places ciné';
   ELSE
-    v_boutique := 'Majestic Cinema'; -- Fixed default for losers
+    v_boutique := '-'; -- No boutique for losers
     v_prize := (ARRAY['Dommage', 'Rejouez', 'Perdu', 'Dommage'])[floor(random() * 4 + 1)];
   END IF;
 

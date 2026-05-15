@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -22,11 +23,19 @@ function DashboardPage() {
   const fetchData = useServerFn(getDashboardData);
   const resetFn = useServerFn(resetGame);
   
-  const { data, isLoading, refetch, isFetching } = useQuery({
+  const { data, isLoading, refetch, isFetching, error } = useQuery({
     queryKey: ["dashboard-spins"],
     queryFn: () => fetchData(),
     refetchInterval: 10000,
   });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate({ to: "/auth" });
+      }
+    });
+  }, [navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -87,6 +96,13 @@ function DashboardPage() {
         </header>
 
         {isLoading && <p className="text-muted-foreground">Chargement…</p>}
+        
+        {error && (
+          <div className="p-4 mb-8 border border-destructive/50 bg-destructive/10 text-destructive rounded-md">
+            <p className="font-semibold">Erreur lors du chargement des données :</p>
+            <p className="text-sm">{(error as Error).message || "Une erreur inconnue est survenue"}</p>
+          </div>
+        )}
 
         {data && (
           <>
